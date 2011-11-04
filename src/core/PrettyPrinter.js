@@ -23,8 +23,10 @@ jasmine.PrettyPrinter.prototype.format = function(value) {
       this.emitScalar('null');
     } else if (value === jasmine.getGlobal()) {
       this.emitScalar('<global>');
-    } else if (value instanceof jasmine.Matchers.Any) {
+    } else if (value instanceof jasmine.Matchers.ObjectContaining) {
       this.emitScalar(value.toString());
+    } else if (value.jasmineToString) {
+      this.emitScalar(value.jasmineToString());
     } else if (typeof value === 'string') {
       this.emitString(value);
     } else if (jasmine.isSpy(value)) {
