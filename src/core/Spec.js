@@ -33,6 +33,10 @@ jasmine.Spec.prototype.getFullName = function() {
 };
 
 
+jasmine.Spec.prototype.pending = function() {
+  return this.results().totalCount === 0;
+};
+
 jasmine.Spec.prototype.results = function() {
   return this.results_;
 };
@@ -47,7 +51,7 @@ jasmine.Spec.prototype.log = function() {
 };
 
 jasmine.Spec.prototype.runs = function (func) {
-  var block = new jasmine.Block(this.env, func, this);
+  var block = new jasmine.SpecBlock(this.env, func, this);
   this.addToQueue(block);
   return this;
 };

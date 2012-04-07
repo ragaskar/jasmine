@@ -12,6 +12,10 @@ jasmine.Block = function(env, func, spec) {
   this.spec = spec;
 };
 
+jasmine.Block.prototype.isSpec = function() {
+  return false;
+}
+
 jasmine.Block.prototype.execute = function(onComplete) {  
   try {
     this.func.apply(this.spec);

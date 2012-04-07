@@ -121,4 +121,63 @@ describe('Spec', function () {
       expect(logResult.values).toEqual(["here's some log message", {key: 'value'}, 123]);
     });
   });
+
+  describe("#pending", function() {
+    var spec, results;
+    beforeEach(function () {
+      spec = new jasmine.Spec(env, suite);
+      results = spec.results();
+      expect(results.totalCount).toEqual(0);
+    });
+
+    describe("if there are results", function() {
+      beforeEach(function() {
+        spec.runs(function () {
+          this.expect(true).toEqual(true);
+        });
+        spec.execute();
+      });
+      it("should return false", function() {
+        expect(spec.pending()).toBe(false);
+      });
+
+    });
+
+    describe("if there are no results", function() {
+      beforeEach(function() {
+        spec.runs(function () {});
+      });
+      it("should return true", function() {
+        spec.execute();
+        expect(spec.pending()).toBe(true);
+      });
+
+      describe("if there is a expectation in the before", function() {
+        beforeEach(function() {
+          suite.beforeEach(function() { this.expect(true).toBe(true); });
+        });
+        it("should return true", function() {
+          spec.execute();
+          expect(spec.pending()).toBe(true);
+        });
+      });
+
+      describe("if there is a expectation in the after", function() {
+        beforeEach(function() {
+          suite.afterEach(function() { this.expect(true).toBe(true); });
+        });
+        it("should return true", function() {
+          spec.execute();
+          expect(spec.pending()).toBe(true);
+        });
+      });
+    });
+
+
+    describe("if it hasn't run yet", function() {
+      it("should return true", function() {
+        expect(spec.pending()).toBe(true);
+      });
+    });
+  });
 });
