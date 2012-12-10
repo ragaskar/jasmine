@@ -58,7 +58,7 @@
       return function() {
         var befores = [];
         for (var suite = currentSuite; suite; suite = suite.parentSuite) {
-          befores = befores.concat(suite.before_)
+          befores = befores.concat(suite.beforeFns)
         }
         return befores.concat(self.currentRunner_.before_).reverse();
       }
@@ -68,7 +68,7 @@
       return function() {
         var afters = [];
         for (var suite = currentSuite; suite; suite = suite.parentSuite) {
-          afters = afters.concat(suite.after_)
+          afters = afters.concat(suite.afterFns)
         }
         return afters.concat(self.currentRunner_.after_)
       }
@@ -136,8 +136,9 @@
     this.suiteFactory = function(description) {
       return new suiteConstructor({
         env: self,
+        id: self.nextSuiteId(),
         description: description,
-        currentSuite: self.currentSuite,
+        parentSuite: self.currentSuite,
         queueFactory: queueFactory,
         isSuite: isSuite
       });
@@ -263,7 +264,7 @@
 
     var parentSuite = this.currentSuite;
     if (parentSuite) {
-      parentSuite.add(suite);
+      parentSuite.addSuite(suite);
     } else {
       this.currentRunner_.addSuite(suite);
     }
@@ -318,7 +319,7 @@
 
   jasmine.Env.prototype.it = function(description, fn) {
     var spec = this.specFactory(description, fn, this.currentSuite);
-    this.currentSuite.add(spec);
+    this.currentSuite.addSpec(spec);
     return spec;
   };
 

@@ -182,9 +182,13 @@ describe("Suite (unit tests)", function() {
 
   it("adds specs", function() {
     var env = new jasmine.Env(),
+      fakeQueue = {
+        add: jasmine.createSpy()
+      },
       suite = new jasmine.Suite({
         env: env,
-        description: "I am a suite"
+        description: "I am a suite",
+        queueFactory: function() { return fakeQueue }
       }),
       fakeSpec = {};
 
@@ -192,9 +196,31 @@ describe("Suite (unit tests)", function() {
 
     suite.addSpec(fakeSpec);
 
-    expect(suite.specs.length).toEqual(1);git
+    expect(suite.specs.length).toEqual(1);
   });
 
+  it("adds suites", function() {
+    var env = new jasmine.Env(),
+      fakeQueue = {
+        add: jasmine.createSpy()
+      },
+      suite = new jasmine.Suite({
+        env: env,
+        description: "I am a suite",
+        queueFactory: function() { return fakeQueue }
+      }),
+      anotherSuite = new jasmine.Suite({
+        env: env,
+        description: "I am another suite",
+        queueFactory: function() { return fakeQueue }
+      });
+
+    expect(suite.suites.length).toEqual(0);
+
+    suite.addSuite(anotherSuite);
+
+    expect(suite.suites.length).toEqual(1);
+  });
 });
 
 // TODO:
@@ -221,5 +247,4 @@ describe("Suite (acceptance)", function() {
     env.execute();
     expect(calls).toEqual(['before', 'spec', 'after']);
   });
-
 });

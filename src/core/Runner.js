@@ -60,7 +60,7 @@ jasmine.Runner.prototype.specs = function () {
   var suites = this.suites();
   var specs = [];
   for (var i = 0; i < suites.length; i++) {
-    specs = specs.concat(suites[i].specs());
+    specs = specs.concat(suites[i].specs);
   }
   return specs;
 };

@@ -107,4 +107,4 @@ jasmine.Spec.prototype.status = function() {
 
 jasmine.Spec.prototype.getFullName = function() {
   return this.getSpecName(this);
-}
+};

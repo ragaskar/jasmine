@@ -6,14 +6,16 @@ jasmine.Suite = function(attrs) {
   this.beforeFns = [];
   this.afterFns = [];
 
-  var queueFactory = attrs.queueFactory || function() {};
+  var queueFactory = attrs.queueFactory || function() {
+  };
   this.queue = queueFactory();
 
-  this.isSuite = attrs.isSuite || function() {};
+  this.isSuite = attrs.isSuite || function() {
+  };
 
   this.children_ = []; // TODO: used by current reporters; keep for now
-  this.suites_ = [];
-  this.specs_ = [];
+  this.suites = [];
+  this.specs = [];
 };
 
 jasmine.Suite.prototype.getFullName = function() {
@@ -26,7 +28,6 @@ jasmine.Suite.prototype.getFullName = function() {
 
 jasmine.Suite.prototype.finish = function(onComplete) {
   this.env.reporter.reportSuiteResults(this);
-  this.finished = true;
   if (typeof(onComplete) == 'function') {
     onComplete();
   }
@@ -40,16 +41,17 @@ jasmine.Suite.prototype.afterEach = function(fn) {
   this.afterFns.unshift(fn);
 };
 
-//TODO: interface should be addSpec or addSuite methods.
-jasmine.Suite.prototype.add = function(suiteOrSpec) {
-  this.children_.push(suiteOrSpec);
-  if (this.isSuite(suiteOrSpec)) {
-    this.suites_.push(suiteOrSpec);
-    this.env.currentRunner().addSuite(suiteOrSpec);
-  } else {
-    this.specs_.push(suiteOrSpec);
-  }
-  this.queue.add(suiteOrSpec);
+jasmine.Suite.prototype.addSpec = function(fn) {
+  this.children_.push(fn);
+  this.specs.push(fn);
+  this.queue.add(fn);
+};
+
+jasmine.Suite.prototype.addSuite = function(suite) {
+  this.children_.push(suite);
+  this.suites.push(suite);
+  this.env.currentRunner().addSuite(suite);
+  this.queue.add(suite);
 };
 
 jasmine.Suite.prototype.specComplete = function(specResult) {
@@ -60,21 +62,13 @@ jasmine.Suite.prototype.specComplete = function(specResult) {
   this.queue.incrementQueue();
 };
 
-jasmine.Suite.prototype.specs = function() {
-  return this.specs_;
-};
-
-jasmine.Suite.prototype.suites = function() {
-  return this.suites_;
-};
-
 jasmine.Suite.prototype.children = function() {
   return this.children_;
 };
 
 jasmine.Suite.prototype.execute = function(onComplete) {
   var self = this;
-  this.queue.start(function () {
+  this.queue.start(function() {
     self.finish(onComplete);
   });
 };

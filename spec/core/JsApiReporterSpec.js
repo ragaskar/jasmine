@@ -10,20 +10,18 @@ describe('jasmine.jsApiReporter', function() {
 
       suite = env.describe("top-level suite", function() {
         spec1 = env.it("spec 1", function() {
-          this.expect(true).toEqual(true);
-
+          env.expect(true).toEqual(true);
         });
 
         spec2 = env.it("spec 2", function() {
-          this.expect(true).toEqual(false);
+          env.expect(true).toEqual(false);
         });
 
         nestedSuite = env.describe("nested suite", function() {
           nestedSpec = env.it("nested spec", function() {
-            expect(true).toEqual(true);
+            env.expect(true).toEqual(true);
           });
         });
-
       });
 
       reporter = new jasmine.JsApiReporter(jasmine);
