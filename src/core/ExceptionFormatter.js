@@ -1,12 +1,15 @@
 jasmine.exceptionFormatter = function(e) {
-  var message = e.name
-    + ': '
-    + e.message
-    + ' in '
-    + (e.fileName || e.sourceURL || '')
-    + ' (line '
-    + (e.line || e.lineNumber || '')
-    + ')';
+  var file = e.fileName || e.sourceURL || '',
+    line = e.lineNumber || e.line || '',
+    message = e.toString();
+
+  if (file.length && line.length) {
+    message += ' ('
+      + file
+      + ':'
+      + line
+      + ')';
+  }
 
   return message;
 };
