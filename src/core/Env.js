@@ -74,7 +74,7 @@
       }
     };
 
-    var exceptionFormatter = jasmine.exceptionMessageFor;
+    var exceptionFormatter = jasmine.exceptionFormatter;
 
     var specConstructor = jasmine.Spec;
 

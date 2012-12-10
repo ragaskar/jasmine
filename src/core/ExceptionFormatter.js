@@ -1,4 +1,4 @@
-jasmine.exceptionMessageFor = function(e) {
+jasmine.exceptionFormatter = function(e) {
   var message = e.name
     + ': '
     + e.message

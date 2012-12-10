@@ -7,7 +7,7 @@ describe("ExceptionFormatter", function() {
         message: 'you got your foo in my bar',
         name: 'A Classic Mistake'
       },
-      message = jasmine.exceptionMessageFor(sampleFirefoxException);
+      message = jasmine.exceptionFormatter(sampleFirefoxException);
 
     expect(message).toEqual('A Classic Mistake: you got your foo in my bar in foo.js (line 1978)');
   });
@@ -19,7 +19,7 @@ describe("ExceptionFormatter", function() {
         message: 'you got your foo in my bar',
         name: 'A Classic Mistake'
       },
-      message = jasmine.exceptionMessageFor(sampleWebkitException);
+      message = jasmine.exceptionFormatter(sampleWebkitException);
 
     expect(message).toEqual('A Classic Mistake: you got your foo in my bar in foo.js (line 1978)');
   });
