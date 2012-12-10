@@ -12,7 +12,6 @@ src_files:
   - 'core/JsApiReporter.js'
   - 'core/Matchers.js'
   - 'core/MultiReporter.js'
-  - 'core/NestedResults.js'
   - 'core/PrettyPrinter.js'
   - 'core/Queue.js'
   - 'core/Runner.js'
