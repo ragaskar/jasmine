@@ -28,6 +28,7 @@ describe("Spec", function() {
       failedExpectations: []
     });
   });
+
   it("reports results for failing tests", function() {
     var resultCallback = originalJasmine.createSpy('resultCallback'),
     expectationFactory = function(actual, spec) {

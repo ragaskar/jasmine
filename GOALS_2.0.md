@@ -14,7 +14,10 @@
 
 ### Hard
 * Finish killing Globals
-  * Guidelines: everything that isn't a CTOR should be closed inside `Env`, and everything that is a CTOR needs to be `new`ed inside the `Env`
+  * Guidelines: 
+    * New objects can have constructors on `jasmine`
+    * Top level functions can live on `jasmine`
+    * Top level (i.e., any `jasmine` property) should only be referenced inside the `Env` constructor
   * Spies
   * isA functions:
     * isArray_ - used in matchers and spies
