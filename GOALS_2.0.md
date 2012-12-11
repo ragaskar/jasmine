@@ -46,3 +46,20 @@
 * Docs
   * JsDoc is a pain to host and RubyMine is pretty good at navigating. I say we kill it officially
   * Docco has gone over well. Should we annotate all the sources and then have Pages be more complex, having tutorials and annotated source like Backbone? Are we small enough?
+
+### NEXT!!!
+
+QueueRunner:
+
+* rename resultCallback to done
+
+Spec:
+
+* resultCallback becomes done
+* spec needs a report function
+* TESTS: kill mock returning mock
+
+Suite:
+
+* use QueueRunner
+* children becomes an array of fns that call spec.exec or suite.exec that get done functions

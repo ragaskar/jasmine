@@ -14,6 +14,7 @@
 
     this.clock = new jasmine.Clock(global, new jasmine.DelayedFunctionScheduler());
 
+    // TODO: this can be removed once Runner is dead and the dependency is removed from the JsApiReporter
     var suiteConstructor = jasmine.Suite;
     var isSuite = function(thing) {
       return thing instanceof suiteConstructor;
@@ -95,6 +96,11 @@
       return catchExceptions;
     };
 
+    // TODO: this should pass in the deps that already exist (e.g., catching exceptions, also the expectation?, moving to resultCallback?)
+    var queueRunnerFactory = function(attrs) {
+      return new jasmine.QueueRunner(attrs);
+    };
+
     this.specFactory = function(description, fn, suite) {
       var spec = new specConstructor({
         id: self.nextSpecId(),
@@ -110,6 +116,7 @@
         description: description,
         catchingExceptions: this.catchingExceptions,
         expectationResultFactory: expectationResultFactory,
+        queueRunner: queueRunnerFactory,
         fn: fn
       });
 
@@ -129,17 +136,12 @@
 
     };
 
-    var queueConstructor = jasmine.Queue;
-    var queueFactory = function() {
-      return new queueConstructor(self);
-    };
     this.suiteFactory = function(description) {
       return new suiteConstructor({
         env: self,
         id: self.nextSuiteId(),
         description: description,
         parentSuite: self.currentSuite,
-        queueFactory: queueFactory,
         isSuite: isSuite
       });
     };
