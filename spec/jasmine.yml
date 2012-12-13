@@ -13,8 +13,6 @@ src_files:
   - 'core/Matchers.js'
   - 'core/MultiReporter.js'
   - 'core/PrettyPrinter.js'
-  - 'core/Queue.js'
-  - 'core/Runner.js'
   - 'core/Suite.js'
   - 'html/HtmlReporterHelpers.js'
   - 'html/HtmlReporter.js'

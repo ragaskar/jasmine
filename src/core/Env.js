@@ -20,9 +20,10 @@
       return thing instanceof suiteConstructor;
     };
     this.jasmine = jasmine;
-    this.currentRunner_ = new jasmine.Runner(this, isSuite);
+
     this.spies_ = [];
     this.currentSpec = null;
+
     this.undefined = jasmine.undefined;
 
     this.reporter = new jasmine.MultiReporter();
@@ -61,7 +62,7 @@
         for (var suite = currentSuite; suite; suite = suite.parentSuite) {
           befores = befores.concat(suite.beforeFns)
         }
-        return befores.concat(self.currentRunner_.before_).reverse();
+        return befores.reverse();
       }
     };
 
@@ -71,7 +72,7 @@
         for (var suite = currentSuite; suite; suite = suite.parentSuite) {
           afters = afters.concat(suite.afterFns)
         }
-        return afters.concat(self.currentRunner_.after_)
+        return afters;
       }
     };
 
@@ -92,13 +93,13 @@
       return catchExceptions = !!value;
     };
 
-    this.catchingExceptions = function(value) {
+    this.catchingExceptions = function() {
       return catchExceptions;
     };
 
-    // TODO: this should pass in the deps that already exist (e.g., catching exceptions, also the expectation?, moving to resultCallback?)
     var queueRunnerFactory = function(attrs) {
-      return new jasmine.QueueRunner(attrs);
+      attrs.catchingExceptions = self.catchingExceptions;
+      new jasmine.QueueRunner(attrs).run(attrs.fns, 0);
     };
 
     this.specFactory = function(description, fn, suite) {
@@ -114,7 +115,6 @@
         },
         startCallback: startCallback,
         description: description,
-        catchingExceptions: this.catchingExceptions,
         expectationResultFactory: expectationResultFactory,
         queueRunner: queueRunnerFactory,
         fn: fn
@@ -127,14 +127,24 @@
       return spec;
 
       function specResultCallback(result) {
+        self.removeAllSpies();
         self.clock.uninstall();
         self.currentSpec = null;
         encourageGC(function() {
           suite.specComplete(result);
         });
       }
-
     };
+
+    this.topSuite = new jasmine.Suite({
+      env: this,
+      id: this.nextSuiteId(),
+      description: 'Jasmine__TopLevel__Suite',
+      queueRunner: queueRunnerFactory,
+      completeCallback: function() {},   // TODO - hook this up
+      resultCallback: function() {} // TODO - hook this up
+    });
+    this.currentSuite = this.topSuite;
 
     this.suiteFactory = function(description) {
       return new suiteConstructor({
@@ -142,7 +152,11 @@
         id: self.nextSuiteId(),
         description: description,
         parentSuite: self.currentSuite,
-        isSuite: isSuite
+        isSuite: isSuite,
+        queueRunner: queueRunnerFactory,
+        resultCallback: function(attrs) {
+          self.reporter.reportSuiteResults(attrs);
+        }
       });
     };
 
@@ -258,19 +272,15 @@
   };
 
   jasmine.Env.prototype.execute = function() {
-    this.currentRunner_.execute();
+    this.reporter.reportRunnerStarting(this);
+    this.topSuite.execute(this.reporter.reportRunnerResults);
   };
 
   jasmine.Env.prototype.describe = function(description, specDefinitions) {
     var suite = this.suiteFactory(description, specDefinitions);
 
     var parentSuite = this.currentSuite;
-    if (parentSuite) {
-      parentSuite.addSuite(suite);
-    } else {
-      this.currentRunner_.addSuite(suite);
-    }
-
+    parentSuite.addSuite(suite);
     this.currentSuite = suite;
 
     var declarationError = null;
@@ -292,26 +302,18 @@
   };
 
   jasmine.Env.prototype.beforeEach = function(beforeEachFunction) {
-    if (this.currentSuite) {
-      this.currentSuite.beforeEach(beforeEachFunction);
-    } else {
-      this.currentRunner_.beforeEach(beforeEachFunction);
-    }
+    this.currentSuite.beforeEach(beforeEachFunction);
   };
 
   jasmine.Env.prototype.currentRunner = function() {
-    return this.currentRunner_;
+    return this.topSuite;
   };
 
   jasmine.Env.prototype.afterEach = function(afterEachFunction) {
-    if (this.currentSuite) {
-      this.currentSuite.afterEach(afterEachFunction);
-    } else {
-      this.currentRunner_.afterEach(afterEachFunction);
-    }
-
+    this.currentSuite.afterEach(afterEachFunction);
   };
 
+  // TODO: should make a suite and then disable it
   jasmine.Env.prototype.xdescribe = function(desc, specDefinitions) {
     return {
       execute: function() {
@@ -325,6 +327,7 @@
     return spec;
   };
 
+  // TODO: should make a spec and disable it
   jasmine.Env.prototype.xit = function(desc, func) {
     return {
       id: this.nextSpecId(),

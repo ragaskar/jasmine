@@ -1,3 +1,4 @@
+// TODO: This should really be part of the Env Integration Spec
 describe("jasmine spec running", function () {
   var env;
   var fakeTimer;
@@ -74,11 +75,11 @@ describe("jasmine spec running", function () {
     var actions = [];
 
     env.beforeEach(function () {
-      actions.push('runner beforeEach');
+      actions.push('topSuite beforeEach');
     });
 
     env.afterEach(function () {
-      actions.push('runner afterEach');
+      actions.push('topSuite afterEach');
     });
 
     env.describe('Something', function() {
@@ -131,33 +132,33 @@ describe("jasmine spec running", function () {
 
 
     var expected = [
-      "runner beforeEach",
+      "topSuite beforeEach",
       "outer beforeEach",
       "outer it 1",
       "outer afterEach",
-      "runner afterEach",
+      "topSuite afterEach",
 
-      "runner beforeEach",
+      "topSuite beforeEach",
       "outer beforeEach",
       "inner 1 beforeEach",
       "inner 1 it",
       "inner 1 afterEach",
       "outer afterEach",
-      "runner afterEach",
+      "topSuite afterEach",
 
-      "runner beforeEach",
+      "topSuite beforeEach",
       "outer beforeEach",
       "outer it 2",
       "outer afterEach",
-      "runner afterEach",
+      "topSuite afterEach",
 
-      "runner beforeEach",
+      "topSuite beforeEach",
       "outer beforeEach",
       "inner 2 beforeEach",
       "inner 2 it",
       "inner 2 afterEach",
       "outer afterEach",
-      "runner afterEach"
+      "topSuite afterEach"
     ];
     expect(actions).toEqual(expected);
   });

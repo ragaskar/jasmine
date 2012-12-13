@@ -25,7 +25,8 @@ describe("Suite", function() {
     var env = new jasmine.Env(),
       parentSuite = new jasmine.Suite({
         env: env,
-        description: "I am a parent suite"
+        description: "I am a parent suite",
+        parentSuite: jasmine.createSpy('pretend top level suite')
       }),
       suite = new jasmine.Suite({
         env: env,
@@ -114,6 +115,24 @@ describe("Suite", function() {
     expect(suite.suites.length).toEqual(1);
   });
 
+  it("can be disabled", function() {
+    var env = new jasmine.Env(),
+      fakeQueueRunner = jasmine.createSpy('fake queue runner'),
+      suite = new jasmine.Suite({
+        env: env,
+        description: "with a child suite",
+        queueRunner: fakeQueueRunner
+      });
+
+    suite.disable();
+
+    expect(suite.disabled).toBe(true);
+
+    suite.execute();
+
+    expect(fakeQueueRunner).not.toHaveBeenCalled();
+  });
+
   it("delegates execution of its specs and suites", function() {
     var env = new jasmine.Env(),
       parentSuiteDone = jasmine.createSpy('parent suite done'),
@@ -131,23 +150,61 @@ describe("Suite", function() {
       }),
       fakeSpec1 = {
         execute: jasmine.createSpy('fakeSpec1')
-      },
-      fakeSpec2 = {
-        execute: jasmine.createSpy('fakeSpec2')
-      },
-      fakeSpec3 = {
-        execute: jasmine.createSpy('fakeSpec3')
       };
 
-    suite.addSpec(fakeSpec1);
-    suite.addSpec(fakeSpec2);
+    spyOn(suite, "execute");
+
+    parentSuite.addSpec(fakeSpec1);
     parentSuite.addSuite(suite);
-    parentSuite.addSpec(fakeSpec3);
 
     parentSuite.execute(parentSuiteDone);
 
-    var suiteFns = fakeQueueRunner.mostRecentCall.args[0].fns;
-    expect(suiteFns).toEqual([fakeSpec1.execute, fakeSpec2.execute])
-    expect(fakeQueueRunner.mostRecentCall
+    var parentSuiteFns = fakeQueueRunnerForParent.mostRecentCall.args[0].fns;
+
+    parentSuiteFns[0]();
+    expect(fakeSpec1.execute).toHaveBeenCalled();
+    parentSuiteFns[1]();
+    expect(suite.execute).toHaveBeenCalled();
+  });
+
+  it("calls a provided onComplete callback when done", function() {
+    var env = new jasmine.Env(),
+      suiteCompleted = jasmine.createSpy('parent suite done'),
+      fakeQueueRunner = function(attrs) { attrs.onComplete(); },
+      suite = new jasmine.Suite({
+        env: env,
+        description: "with a child suite",
+        queueRunner: fakeQueueRunner
+      }),
+      fakeSpec1 = {
+        execute: jasmine.createSpy('fakeSpec1')
+      };
+
+    suite.execute(suiteCompleted);
+
+    expect(suiteCompleted).toHaveBeenCalled();
+  });
+
+  it("calls a provided result callback when done", function() {
+    var env = new jasmine.Env(),
+      suiteResultsCallback = jasmine.createSpy('suite result callback'),
+      fakeQueueRunner = function(attrs) { attrs.onComplete(); },
+      suite = new jasmine.Suite({
+        env: env,
+        description: "with a child suite",
+        queueRunner: fakeQueueRunner,
+        resultCallback: suiteResultsCallback
+      }),
+      fakeSpec1 = {
+        execute: jasmine.createSpy('fakeSpec1')
+      };
+
+    suite.execute();
+
+    expect(suiteResultsCallback).toHaveBeenCalledWith({
+      id: suite.id,
+      status: '',
+      description: suite.getFullName()
+    });
   });
 });

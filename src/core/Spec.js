@@ -28,10 +28,11 @@ jasmine.Spec.prototype.expect = function(actual) {
   return this.expectationFactory(actual, this);
 };
 
-jasmine.Spec.prototype.execute = function(done) {
+jasmine.Spec.prototype.execute = function(onComplete) {
   var self = this;
+
   if (this.disabled) {
-    reportResult();
+    complete();
     return;
   }
 
@@ -52,20 +53,20 @@ jasmine.Spec.prototype.execute = function(done) {
         trace: e
       }));
     },
-    onComplete: reportResult,
-    catchingExceptions: self.catchingExceptions // TODO: move this up to env
+    onComplete: complete
   });
 
-  function reportResult() {
-    if (done) {
-      done();
-    }
+  function complete() {
     self.resultCallback({
       id: self.id,
       status: self.status(),
       description: self.description,
       failedExpectations: self.failedExpectations
     });
+
+    if (onComplete) {
+      onComplete();
+    }
   }
 };
 
@@ -92,28 +93,3 @@ jasmine.Spec.prototype.status = function() {
 jasmine.Spec.prototype.getFullName = function() {
   return this.getSpecName(this);
 };
-
-
-/*
-resultCallback = function() {
-  myReporter.report('blah')
-  done();
-}
-
-
-
-var
-specFactory = {
-  new jasmine.Spec({
-    reportResults: multiReporter.reportSpecBlah
-
-  })
-
-}
-
-suiteFactory = {
-
-  new jasmine.Suite...
-
-}
-*/

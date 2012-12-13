@@ -1,4 +1,5 @@
-describe("jasmine.Env", function() {
+// TODO: Fix these unit tests!
+describe("Env", function() {
   var env;
   beforeEach(function() {
     env = new jasmine.Env();
@@ -164,32 +165,116 @@ describe("jasmine.Env", function() {
   });
 });
 
-describe("jasmine Env (integration)", function() {
+describe("Env (integration)", function() {
+
+  it("Suites execute as expected (no nesting)", function() {
+    var env = new jasmine.Env(),
+      calls = [];
+
+    env.describe("A Suite", function() {
+      env.it("with a spec", function() {
+        calls.push("with a spec");
+      });
+      env.it("and another spec", function() {
+        calls.push("and another spec");
+      });
+    });
+
+    env.execute();
+
+    expect(calls).toEqual([
+      "with a spec",
+      "and another spec"
+    ]);
+
+  });
+
+  it("Nested Suites execute as expected", function() {
+    var env = new jasmine.Env(),
+      calls = [];
+
+    env.describe("Outer suite", function() {
+      env.it("an outer spec", function() {
+        calls.push('an outer spec')
+      });
+      env.describe("Inner suite", function() {
+        env.it("an inner spec", function() {
+          calls.push('an inner spec');
+        });
+        env.it("another inner spec", function() {
+          calls.push('another inner spec');
+        });
+      });
+    });
+
+    env.execute();
+
+    expect(calls).toEqual([
+      'an outer spec',
+      'an inner spec',
+      'another inner spec'
+    ]);
+
+  });
+  it("Multiple top-level Suites execute as expected", function() {
+    var env = new jasmine.Env(),
+      calls = [];
+
+    env.describe("Outer suite", function() {
+      env.it("an outer spec", function() {
+        calls.push('an outer spec')
+      });
+      env.describe("Inner suite", function() {
+        env.it("an inner spec", function() {
+          calls.push('an inner spec');
+        });
+        env.it("another inner spec", function() {
+          calls.push('another inner spec');
+        });
+      });
+    });
+
+    env.describe("Another outer suite", function() {
+      env.it("a 2nd outer spec", function() {
+        calls.push('a 2nd outer spec')
+      });
+    });
+
+    env.execute();
+
+    expect(calls).toEqual([
+      'an outer spec',
+      'an inner spec',
+      'another inner spec',
+      'a 2nd outer spec'
+    ]);
+  });
+
 
   it("Mock clock can be installed and used in tests", function() {
-    var setTimeout = jasmine.createSpy('setTimeout'),
-      globalTimeoutFn = jasmine.createSpy('globalTimeoutFn'),
-      fakeTimeoutFn = jasmine.createSpy('fakeTimeoutFn'),
-      env = new jasmine.Env({global: { setTimeout: setTimeout }});
+    var globalSetTimeout = jasmine.createSpy('globalSetTimeout'),
+      delayedFunctionForGlobalClock = jasmine.createSpy('delayedFunctionForGlobalClock'),
+      delayedFunctionForMockClock = jasmine.createSpy('delayedFunctionForMockClock'),
+      env = new jasmine.Env({global: { setTimeout: globalSetTimeout }});
 
     env.describe("tests", function() {
       env.it("test with mock clock", function() {
         env.clock.install();
-        env.clock.setTimeout(fakeTimeoutFn, 100);
+        env.clock.setTimeout(delayedFunctionForMockClock, 100);
         env.clock.tick(100);
       });
       env.it("test without mock clock", function() {
-        env.clock.setTimeout(globalTimeoutFn, 100);
+        env.clock.setTimeout(delayedFunctionForGlobalClock, 100);
       });
     });
 
-    expect(setTimeout).not.toHaveBeenCalled();
-    expect(fakeTimeoutFn).not.toHaveBeenCalled();
+    expect(globalSetTimeout).not.toHaveBeenCalled();
+    expect(delayedFunctionForMockClock).not.toHaveBeenCalled();
 
     env.execute();
 
-    expect(fakeTimeoutFn).toHaveBeenCalled();
-    expect(setTimeout).toHaveBeenCalledWith(globalTimeoutFn, 100);
+    expect(delayedFunctionForMockClock).toHaveBeenCalled();
+    expect(globalSetTimeout).toHaveBeenCalledWith(delayedFunctionForGlobalClock, 100);
   });
 
   it("should be possible to get full name from a spec", function() {
@@ -208,8 +293,6 @@ describe("jasmine Env (integration)", function() {
         });
       });
     });
-
-    env.execute();
 
     expect(topLevelSpec.getFullName()).toBe("my tests are sometimes top level.");
     expect(nestedSpec.getFullName()).toBe("my tests are sometimes singly nested.");

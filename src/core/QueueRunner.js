@@ -16,7 +16,6 @@ jasmine.QueueRunner.prototype.run = function(fns, index) {
   }
 
   var fn = fns[index];
-  // TODO: Now that QueueRunner is extracted, what should the context be to called fns? The spec? null?
   var self = this;
   if (fn.length > 0) {
     attempt(function() { fn.call(self, function() {  self.run(fns, index + 1) }) });
@@ -38,9 +37,3 @@ jasmine.QueueRunner.prototype.run = function(fns, index) {
     }
   }
 };
-
-
-//addSpec = function(spec) {
-//  children = function(onComplete) { spec.execute(onComplete); };
-//}
-
