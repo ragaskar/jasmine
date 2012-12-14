@@ -72,9 +72,7 @@ jasmine.Suite.prototype.execute = function(onComplete) {
 
     function wrapChild(child) {
       return function(done) {
-        self.encourageGC(function() {
           child.execute(done);
-        });
       }
     }
   }

@@ -1,6 +1,7 @@
 jasmine.QueueRunner = function(attrs) {
   this.fns = attrs.fns || [];
   this.onComplete = attrs.onComplete || function() {};
+  this.encourageGC = attrs.encourageGC || function(fn) {fn()};
   this.onException = attrs.onException || function() {};
   this.catchingExceptions = attrs.catchingExceptions || function() { return true; };
 };
@@ -11,7 +12,7 @@ jasmine.QueueRunner.prototype.execute = function() {
 
 jasmine.QueueRunner.prototype.run = function(fns, index) {
   if (index >= fns.length) {
-    this.onComplete();
+    this.encourageGC(this.onComplete);
     return;
   }
 

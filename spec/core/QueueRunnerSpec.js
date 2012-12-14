@@ -102,9 +102,9 @@ describe("QueueRunner", function() {
     expect(function() { queueRunner.execute(); }).toThrow();
   });
 
-  it("calls a provided result callback when done", function() {
+  it("calls a provided complete callback when done", function() {
     var fn = jasmine.createSpy('fn'),
-      completeCallback = jasmine.createSpy('complete callback'),
+      completeCallback = jasmine.createSpy('completeCallback'),
       queueRunner = new jasmine.QueueRunner({
         fns: [fn],
         onComplete: completeCallback
@@ -113,5 +113,20 @@ describe("QueueRunner", function() {
     queueRunner.execute();
 
     expect(completeCallback).toHaveBeenCalled();
+  });
+
+  it("calls a provided garbage collection function with the complete callback when done", function() {
+    var fn = jasmine.createSpy('fn'),
+      completeCallback = jasmine.createSpy('completeCallback'),
+      encourageGC = jasmine.createSpy('encourageGC'),
+      queueRunner = new jasmine.QueueRunner({
+        fns: [fn],
+        encourageGC: encourageGC,
+        onComplete: completeCallback
+      });
+
+    queueRunner.execute();
+
+    expect(encourageGC).toHaveBeenCalledWith(completeCallback);
   });
 });

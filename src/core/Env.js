@@ -97,9 +97,24 @@
       return catchExceptions;
     };
 
-    var queueRunnerFactory = function(attrs) {
-      attrs.catchingExceptions = self.catchingExceptions;
-      new jasmine.QueueRunner(attrs).run(attrs.fns, 0);
+    var maximumSpecCallbackDepth = 100;
+    var currentSpecCallbackDepth = 0;
+
+    function encourageGarbageCollection(fn) {
+      currentSpecCallbackDepth++;
+      if (currentSpecCallbackDepth > maximumSpecCallbackDepth) {
+        currentSpecCallbackDepth = 0;
+        global.setTimeout(fn, 0);
+      } else {
+        fn();
+      }
+    }
+
+    var queueRunnerFactory = function(options) {
+      options.catchingExceptions = self.catchingExceptions;
+      options.encourageGC = encourageGarbageCollection;
+
+      new jasmine.QueueRunner(options).run(options.fns, 0);
     };
 
     this.specFactory = function(description, fn, suite) {
@@ -140,7 +155,6 @@
       queueRunner: queueRunnerFactory,
       completeCallback: function() {},   // TODO - hook this up
       resultCallback: function() {}, // TODO - hook this up
-      encourageGC: encourageGarbageCollection
     });
     this.currentSuite = this.topSuite;
 
@@ -154,23 +168,9 @@
         queueRunner: queueRunnerFactory,
         resultCallback: function(attrs) {
           self.reporter.reportSuiteResults(attrs);
-        },
-        encourageGC: encourageGarbageCollection
+        }
       });
     };
-
-    var maximumSpecCallbackDepth = 100;
-    var currentSpecCallbackDepth = 0;
-
-    function encourageGarbageCollection(fn) {
-      currentSpecCallbackDepth++;
-      if (currentSpecCallbackDepth > maximumSpecCallbackDepth) {
-        currentSpecCallbackDepth = 0;
-        global.setTimeout(fn, 0);
-      } else {
-        fn();
-      }
-    }
   };
 
   //TODO: shim Spec addMatchers behavior into Env. Should be rewritten to remove globals, etc.
