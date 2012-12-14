@@ -33,6 +33,10 @@
 * Rewrite/simplify Reporter interface
   * get feature parity back on JsApiReporter
   * get feature parity back on HTMLReporter
+* Matchers improvements
+  * move AddMatchers to Env & global (away from spec)
+  * make matchers unit-testable
+  * write doc on how to make a matcher
 
 ### Easy
 
