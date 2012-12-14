@@ -1,8 +1,3 @@
-/**
- * Environment for Jasmine
- *
- * @constructor
- */
 (function() {
   jasmine.Env = function(options) {
     options = options || {};
@@ -10,7 +5,6 @@
     var global = options.global || jasmine.getGlobal();
 
     var catchExceptions = true;
-    var encourageGC = options.encourageGarbageCollection || encourageGarbageCollection;
 
     this.clock = new jasmine.Clock(global, new jasmine.DelayedFunctionScheduler());
 
@@ -112,7 +106,7 @@
 
     var queueRunnerFactory = function(options) {
       options.catchingExceptions = self.catchingExceptions;
-      options.encourageGC = encourageGarbageCollection;
+      options.encourageGC = options.encourageGarbageCollection || encourageGarbageCollection;
 
       new jasmine.QueueRunner(options).run(options.fns, 0);
     };
@@ -231,9 +225,7 @@
     }
     this.spies_ = [];
   };
-  /**
-   * @returns string containing jasmine version build info, if set.
-   */
+
   jasmine.Env.prototype.versionString = function() {
     if (!this.jasmine.version_) {
       return "version unknown";
@@ -248,24 +240,14 @@
     return versionString;
   };
 
-  /**
-   * @returns a sequential integer starting at 0
-   */
   jasmine.Env.prototype.nextSpecId = function() {
     return this.nextSpecId_++;
   };
 
-  /**
-   * @returns a sequential integer starting at 0
-   */
   jasmine.Env.prototype.nextSuiteId = function() {
     return this.nextSuiteId_++;
   };
 
-  /**
-   * Register a reporter to receive status updates from Jasmine.
-   * @param {jasmine.Reporter} reporter An object which will receive status updates.
-   */
   jasmine.Env.prototype.addReporter = function(reporter) {
     this.reporter.addReporter(reporter);
   };
