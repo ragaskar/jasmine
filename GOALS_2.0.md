@@ -30,7 +30,9 @@
     * inherit is for how matchers are added/mixed in, reporters, and pretty printers
     * formatException is used only inside Env/spec
     * htmlEscape is for messages in matchers - should this be HTML at all? Is that Reporter responsibility?
-* get feature parity back on HTMLReporter
+* Rewrite/simplify Reporter interface
+  * get feature parity back on JsApiReporter
+  * get feature parity back on HTMLReporter
 
 ### Easy
 
