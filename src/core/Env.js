@@ -300,24 +300,10 @@
     return suite;
   };
 
-  jasmine.Env.prototype.beforeEach = function(beforeEachFunction) {
-    this.currentSuite.beforeEach(beforeEachFunction);
-  };
-
-  jasmine.Env.prototype.currentRunner = function() {
-    return this.topSuite;
-  };
-
-  jasmine.Env.prototype.afterEach = function(afterEachFunction) {
-    this.currentSuite.afterEach(afterEachFunction);
-  };
-
-  // TODO: should make a suite and then disable it
-  jasmine.Env.prototype.xdescribe = function(desc, specDefinitions) {
-    return {
-      execute: function() {
-      }
-    };
+  jasmine.Env.prototype.xdescribe = function(description, specDefinitions) {
+    var suite = this.describe(description, specDefinitions);
+    suite.disable();
+    return suite;
   };
 
   jasmine.Env.prototype.it = function(description, fn) {
@@ -326,13 +312,22 @@
     return spec;
   };
 
-  // TODO: should make a spec and disable it
-  jasmine.Env.prototype.xit = function(desc, func) {
-    return {
-      id: this.nextSpecId(),
-      runs: function() {
-      }
-    };
+  jasmine.Env.prototype.xit = function(description, fn) {
+    var spec = this.it(description, fn);
+    spec.disable();
+    return spec;
+  };
+
+  jasmine.Env.prototype.beforeEach = function(beforeEachFunction) {
+    this.currentSuite.beforeEach(beforeEachFunction);
+  };
+
+  jasmine.Env.prototype.afterEach = function(afterEachFunction) {
+    this.currentSuite.afterEach(afterEachFunction);
+  };
+
+  jasmine.Env.prototype.currentRunner = function() {
+    return this.topSuite;
   };
 
   jasmine.Env.prototype.compareRegExps_ = function(a, b, mismatchKeys, mismatchValues) {

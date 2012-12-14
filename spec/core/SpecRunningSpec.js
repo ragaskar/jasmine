@@ -220,16 +220,30 @@ describe("jasmine spec running", function () {
     expect(actions).toEqual(expected);
   });
 
+  it("shouldn't run disabled suites", function() {
+    var specInADisabledSuite = originalJasmine.createSpy("specInADisabledSuite"),
+    suite = env.describe('A Suite', function() {
+      env.xdescribe('with a disabled suite', function(){
+        env.it('disabled spec', specInADisabledSuite);
+      });
+    });
+
+    suite.execute();
+
+    expect(specInADisabledSuite).not.toHaveBeenCalled();
+  });
+
   it("shouldn't run disabled tests", function() {
     var disabledSpec = originalJasmine.createSpy('disabledSpec'),
     suite = env.describe('default current suite', function() {
-      env.xit('disabled spec').runs(disabledSpec);
+      env.xit('disabled spec', disabledSpec);
     });
     suite.execute();
     expect(disabledSpec).not.toHaveBeenCalled();
   });
 
-  it("should recover gracefully when there are errors in describe functions", function() {
+  // TODO: is this useful? It doesn't catch syntax errors
+  xit("should recover gracefully when there are errors in describe functions", function() {
     var specs = [];
     var superSimpleReporter = new jasmine.Reporter();
     superSimpleReporter.reportSpecResults = function(result) {

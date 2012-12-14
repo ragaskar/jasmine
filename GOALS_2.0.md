@@ -33,7 +33,6 @@
 * get feature parity back on HTMLReporter
 
 ### Easy
-* xdescribe / xit make skipped specs instead of empty blocks
 
 ## Other Topics
 
