@@ -186,7 +186,6 @@ describe("Env (integration)", function() {
       "with a spec",
       "and another spec"
     ]);
-
   });
 
   it("Nested Suites execute as expected", function() {
@@ -216,6 +215,7 @@ describe("Env (integration)", function() {
     ]);
 
   });
+
   it("Multiple top-level Suites execute as expected", function() {
     var env = new jasmine.Env(),
       calls = [];

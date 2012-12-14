@@ -207,4 +207,10 @@ describe("Suite", function() {
       description: suite.getFullName()
     });
   });
+
+  // TODO: how to unit test this?
+  xit("calls a provided garbage collection handler", function() {
+    
+  });
+
 });

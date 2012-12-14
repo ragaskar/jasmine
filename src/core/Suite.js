@@ -5,6 +5,7 @@ jasmine.Suite = function(attrs) {
   this.description = attrs.description;
   this.completeCallback = attrs.completeCallback || function() {};
   this.resultCallback = attrs.resultCallback || function() {};
+  this.encourageGC = attrs.encourageGC || function(fn) {fn();};
 
   this.beforeFns = [];
   this.afterFns = [];
@@ -67,20 +68,19 @@ jasmine.Suite.prototype.execute = function(onComplete) {
     children = this.children_;
 
   for (var i = 0; i < children.length; i++) {
-    allFns.push(wrapChild(i));
+    allFns.push(wrapChild(children[i]));
 
-    function wrapChild(index) {
-      var child = children[index];
-
+    function wrapChild(child) {
       return function(done) {
-        child.execute(done)
+        self.encourageGC(function() {
+          child.execute(done);
+        });
       }
     }
   }
 
   this.queueRunner({
     fns: allFns,
-    onException: function() {},
     onComplete: complete
   });
 

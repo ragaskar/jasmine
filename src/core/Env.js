@@ -130,9 +130,6 @@
         self.removeAllSpies();
         self.clock.uninstall();
         self.currentSpec = null;
-        encourageGC(function() {
-          suite.specComplete(result);
-        });
       }
     };
 
@@ -142,7 +139,8 @@
       description: 'Jasmine__TopLevel__Suite',
       queueRunner: queueRunnerFactory,
       completeCallback: function() {},   // TODO - hook this up
-      resultCallback: function() {} // TODO - hook this up
+      resultCallback: function() {}, // TODO - hook this up
+      encourageGC: encourageGarbageCollection
     });
     this.currentSuite = this.topSuite;
 
@@ -156,7 +154,8 @@
         queueRunner: queueRunnerFactory,
         resultCallback: function(attrs) {
           self.reporter.reportSuiteResults(attrs);
-        }
+        },
+        encourageGC: encourageGarbageCollection
       });
     };
 

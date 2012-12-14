@@ -14,7 +14,7 @@
 
 ### Hard
 * Finish killing Globals
-  * Guidelines: 
+  * Guidelines:
     * New objects can have constructors on `jasmine`
     * Top level functions can live on `jasmine`
     * Top level (i.e., any `jasmine` property) should only be referenced inside the `Env` constructor
@@ -30,36 +30,16 @@
     * inherit is for how matchers are added/mixed in, reporters, and pretty printers
     * formatException is used only inside Env/spec
     * htmlEscape is for messages in matchers - should this be HTML at all? Is that Reporter responsibility?
-* Suites need to be unit-tested
-* Remove Queue from Suite in favor of queuerunner refactoring
-* Remover Runner in favor of a top-level Suite
-  * This means Env needs to `new` a `Suite` first thing
 * get feature parity back on HTMLReporter
 
 ### Easy
-* Refactor `queuerunner` into a new object
 * xdescribe / xit make skipped specs instead of empty blocks
 
 ## Other Topics
 
 * Build - can we, should we redo the build and release process AGAIN in order to make it less arcane
+  * Want to add JSHint to build
+  * Use a standard JS/Node based concat system instead of custom Ruby?
 * Docs
   * JsDoc is a pain to host and RubyMine is pretty good at navigating. I say we kill it officially
   * Docco has gone over well. Should we annotate all the sources and then have Pages be more complex, having tutorials and annotated source like Backbone? Are we small enough?
-
-### NEXT!!!
-
-QueueRunner:
-
-* rename resultCallback to done
-
-Spec:
-
-* resultCallback becomes done
-* spec needs a report function
-* TESTS: kill mock returning mock
-
-Suite:
-
-* use QueueRunner
-* children becomes an array of fns that call spec.exec or suite.exec that get done functions
