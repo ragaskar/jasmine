@@ -8,19 +8,20 @@
 
     this.clock = new jasmine.Clock(global, new jasmine.DelayedFunctionScheduler());
 
-    // TODO: this can be removed once Runner is dead and the dependency is removed from the JsApiReporter
-    var suiteConstructor = jasmine.Suite;
-    var isSuite = function(thing) {
-      return thing instanceof suiteConstructor;
-    };
     this.jasmine = jasmine;
-
     this.spies_ = [];
     this.currentSpec = null;
 
     this.undefined = jasmine.undefined;
 
-    this.reporter = new jasmine.MultiReporter();
+    this.reporter = new jasmine.ReportDispatcher([
+      "jasmineStarted",
+      "jasmineDone",
+      "suiteStarted",
+      "suiteDone",
+      "specStarted",
+      "specDone"
+    ]);
 
     this.lastUpdate = 0;
     this.specFilter = function() {
@@ -45,9 +46,9 @@
       return expect;
     };
 
-    var startCallback = function(spec) {
+    var specStarted = function(spec) {
       self.currentSpec = spec;
-      self.reporter.reportSpecStarting(spec);
+      self.reporter.specStarted(spec.result);
     };
 
     var beforeFns = function(currentSuite) {
@@ -122,7 +123,7 @@
         getSpecName: function(spec) {
           return getSpecName(spec, suite)
         },
-        startCallback: startCallback,
+        onStart: specStarted,
         description: description,
         expectationResultFactory: expectationResultFactory,
         queueRunner: queueRunnerFactory,
@@ -142,13 +143,19 @@
       }
     };
 
+    var suiteStarted = function(suite) {
+      self.reporter.suiteStarted(suite.result);
+    };
+
+    var suiteConstructor = jasmine.Suite;
+
     this.topSuite = new jasmine.Suite({
       env: this,
       id: this.nextSuiteId(),
       description: 'Jasmine__TopLevel__Suite',
       queueRunner: queueRunnerFactory,
-      completeCallback: function() {},   // TODO - hook this up
-      resultCallback: function() {}, // TODO - hook this up
+      completeCallback: function() {}, // TODO - hook this up
+      resultCallback: function() {} // TODO - hook this up
     });
     this.currentSuite = this.topSuite;
 
@@ -158,10 +165,10 @@
         id: self.nextSuiteId(),
         description: description,
         parentSuite: self.currentSuite,
-        isSuite: isSuite,
         queueRunner: queueRunnerFactory,
+        onStart: suiteStarted,
         resultCallback: function(attrs) {
-          self.reporter.reportSuiteResults(attrs);
+          self.reporter.suiteDone(attrs);
         }
       });
     };
@@ -177,9 +184,7 @@
     jasmine.Matchers.wrapInto_(matchersPrototype, newMatchersClass);
     this.matchersClass = newMatchersClass;
   };
-  /**
-   * @returns an object containing jasmine version build info, if set.
-   */
+
   jasmine.Env.prototype.version = function() {
     if (this.jasmine.version_) {
       return this.jasmine.version_;
@@ -218,6 +223,7 @@
     return spyObj;
   };
 
+  // TODO: move this to closure
   jasmine.Env.prototype.removeAllSpies = function() {
     for (var i = 0; i < this.spies_.length; i++) {
       var spy = this.spies_[i];
@@ -226,6 +232,7 @@
     this.spies_ = [];
   };
 
+  // TODO: move this to closure
   jasmine.Env.prototype.versionString = function() {
     if (!this.jasmine.version_) {
       return "version unknown";
@@ -240,23 +247,28 @@
     return versionString;
   };
 
+  // TODO: move this to closure
   jasmine.Env.prototype.nextSpecId = function() {
     return this.nextSpecId_++;
   };
 
+  // TODO: move this to closure
   jasmine.Env.prototype.nextSuiteId = function() {
     return this.nextSuiteId_++;
   };
 
+  // TODO: move this to closure
   jasmine.Env.prototype.addReporter = function(reporter) {
     this.reporter.addReporter(reporter);
   };
 
+  // TODO: move this to closure
   jasmine.Env.prototype.execute = function() {
-    this.reporter.reportRunnerStarting(this);
-    this.topSuite.execute(this.reporter.reportRunnerResults);
+    this.reporter.jasmineStarted();
+    this.topSuite.execute(this.reporter.jasmineDone);
   };
 
+  // TODO: move this to closure
   jasmine.Env.prototype.describe = function(description, specDefinitions) {
     var suite = this.suiteFactory(description, specDefinitions);
 
@@ -282,32 +294,38 @@
     return suite;
   };
 
+  // TODO: move this to closure
   jasmine.Env.prototype.xdescribe = function(description, specDefinitions) {
     var suite = this.describe(description, specDefinitions);
     suite.disable();
     return suite;
   };
 
+  // TODO: move this to closure
   jasmine.Env.prototype.it = function(description, fn) {
     var spec = this.specFactory(description, fn, this.currentSuite);
     this.currentSuite.addSpec(spec);
     return spec;
   };
 
+  // TODO: move this to closure
   jasmine.Env.prototype.xit = function(description, fn) {
     var spec = this.it(description, fn);
     spec.disable();
     return spec;
   };
 
+  // TODO: move this to closure
   jasmine.Env.prototype.beforeEach = function(beforeEachFunction) {
     this.currentSuite.beforeEach(beforeEachFunction);
   };
 
+  // TODO: move this to closure
   jasmine.Env.prototype.afterEach = function(afterEachFunction) {
     this.currentSuite.afterEach(afterEachFunction);
   };
 
+  // TODO: Still needed?
   jasmine.Env.prototype.currentRunner = function() {
     return this.topSuite;
   };

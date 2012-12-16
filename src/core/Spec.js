@@ -1,5 +1,4 @@
 jasmine.Spec = function(attrs) {
-  this.failedExpectations = [];
   this.encounteredExpectations = false;
   this.expectationFactory = attrs.expectationFactory;
   this.resultCallback = attrs.resultCallback || function() {};
@@ -9,18 +8,25 @@ jasmine.Spec = function(attrs) {
   this.beforeFns = attrs.beforeFns || function() {};
   this.afterFns = attrs.afterFns || function() {};
   this.catchingExceptions = attrs.catchingExceptions;
-  this.startCallback = attrs.startCallback || function() {};
+  this.onStart = attrs.onStart || function() {};
   this.exceptionFormatter = attrs.exceptionFormatter || function() {};
   this.getSpecName = attrs.getSpecName;
   this.expectationResultFactory = attrs.expectationResultFactory || function() {};
   this.queueRunner = attrs.queueRunner || { execute: function() {}};
   this.catchingExceptions = attrs.catchingExceptions || function() { return true; };
+
+  this.result = {
+    id: this.id,
+    description: this.description,
+    status: this.status(),
+    failedExpectations: []
+  };
 };
 
 jasmine.Spec.prototype.addExpectationResult = function(passed, data) {
   this.encounteredExpectations = true;
   if (!passed) {
-    this.failedExpectations.push(data);
+    this.result.failedExpectations.push(data);
   }
 };
 
@@ -38,9 +44,9 @@ jasmine.Spec.prototype.execute = function(onComplete) {
 
   var befores = this.beforeFns() || [],
     afters = this.afterFns() || [];
-  this.startCallback(this);
   var allFns = befores.concat(this.fn).concat(afters);
 
+  this.onStart(this);
   this.queueRunner({
     fns: allFns,
     onException: function(e) {
@@ -57,12 +63,8 @@ jasmine.Spec.prototype.execute = function(onComplete) {
   });
 
   function complete() {
-    self.resultCallback({
-      id: self.id,
-      status: self.status(),
-      description: self.description,
-      failedExpectations: self.failedExpectations
-    });
+    self.result.status = self.status();
+    self.resultCallback(self.result);
 
     if (onComplete) {
       onComplete();
@@ -83,7 +85,7 @@ jasmine.Spec.prototype.status = function() {
     return null;
   }
 
-  if (this.failedExpectations.length > 0) {
+  if (this.result.failedExpectations.length > 0) {
     return 'failed';
   } else {
     return 'passed';

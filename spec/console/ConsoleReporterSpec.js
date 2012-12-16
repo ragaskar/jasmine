@@ -54,7 +54,7 @@ describe("ConsoleReporter", function() {
   }
 
   function simulateRun(reporter, specResults, suiteResults, finalRunner, startTime, endTime) {
-    reporter.reportRunnerStarting();
+    reporter.jasmineStarted();
     for (var i = 0; i < specResults.length; i++) {
       reporter.reportSpecResults(specResults[i]);
     }
@@ -193,7 +193,7 @@ describe("ConsoleReporter", function() {
 
   describe('When a Jasmine environment executes', function() {
     beforeEach(function() {
-      reporter.reportRunnerStarting();
+      reporter.jasmineStarted();
     });
 
     it("should print 'Started' to the console", function() {
@@ -233,7 +233,7 @@ describe("ConsoleReporter", function() {
           reporter.now = function() {
             return 1000;
           };
-          reporter.reportRunnerStarting();
+          reporter.jasmineStarted();
           reporter.now = function() {
             return 1777;
           };

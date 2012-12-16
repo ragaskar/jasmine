@@ -3,6 +3,7 @@ jasmine.Suite = function(attrs) {
   this.id = attrs.id;
   this.parentSuite = attrs.parentSuite;
   this.description = attrs.description;
+  this.onStart = attrs.onStart || function() {};
   this.completeCallback = attrs.completeCallback || function() {};
   this.resultCallback = attrs.resultCallback || function() {};
   this.encourageGC = attrs.encourageGC || function(fn) {fn();};
@@ -12,12 +13,15 @@ jasmine.Suite = function(attrs) {
   this.queueRunner = attrs.queueRunner || function() {};
   this.disabled = false;
 
-  // TODO: dead code
-  this.isSuite = attrs.isSuite || function() {};
-
   this.children_ = []; // TODO: rename
   this.suites = []; // TODO: needed?
   this.specs = [];  // TODO: needed?
+
+  this.result = {
+    id: this.id,
+    status: this.disabled ? 'disabled' : '',
+    description: this.description
+  };
 };
 
 jasmine.Suite.prototype.getFullName = function() {
@@ -72,10 +76,12 @@ jasmine.Suite.prototype.execute = function(onComplete) {
 
     function wrapChild(child) {
       return function(done) {
-          child.execute(done);
+        child.execute(done);
       }
     }
   }
+
+  this.onStart(this);
 
   this.queueRunner({
     fns: allFns,
@@ -83,11 +89,7 @@ jasmine.Suite.prototype.execute = function(onComplete) {
   });
 
   function complete() {
-    self.resultCallback({
-      id: self.id,
-      status: self.disabled ? 'disabled' : '',
-      description: self.getFullName()
-    });
+    self.resultCallback(self.result);
 
     if (onComplete) {
       onComplete();

@@ -124,7 +124,7 @@ jasmine.ConsoleReporter = function(print, doneCallback, showColors) {
     return new Date().getTime();
   };
 
-  this.reportRunnerStarting = function() {
+  this.jasmineStarted = function() {
     this.runnerStartTime = this.now();
     started();
   };

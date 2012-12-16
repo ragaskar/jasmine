@@ -167,6 +167,25 @@ describe("Suite", function() {
     expect(suite.execute).toHaveBeenCalled();
   });
 
+  it("calls a provided onStart callback when starting", function() {
+    var env = new jasmine.Env(),
+      suiteStarted = jasmine.createSpy('suiteStarted'),
+      fakeQueueRunner = function(attrs) { attrs.onComplete(); },
+      suite = new jasmine.Suite({
+        env: env,
+        description: "with a child suite",
+        onStart: suiteStarted,
+        queueRunner: fakeQueueRunner
+      }),
+      fakeSpec1 = {
+        execute: jasmine.createSpy('fakeSpec1')
+      };
+
+    suite.execute();
+
+    expect(suiteStarted).toHaveBeenCalledWith(suite);
+  });
+
   it("calls a provided onComplete callback when done", function() {
     var env = new jasmine.Env(),
       suiteCompleted = jasmine.createSpy('parent suite done'),
@@ -207,10 +226,4 @@ describe("Suite", function() {
       description: suite.getFullName()
     });
   });
-
-  // TODO: how to unit test this?
-  xit("calls a provided garbage collection handler", function() {
-    
-  });
-
 });

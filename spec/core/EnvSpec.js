@@ -18,7 +18,7 @@ describe("Env", function() {
     var fakeReporter;
 
     beforeEach(function() {
-      fakeReporter = originalJasmine.createSpyObj("fakeReporter", ["log"]);
+      fakeReporter = originalJasmine.createSpyObj("fakeReporter", ["jasmineStarted"]);
     });
 
     describe('version', function() {
@@ -80,8 +80,8 @@ describe("Env", function() {
 
     it("should allow reporters to be registered", function() {
       env.addReporter(fakeReporter);
-      env.reporter.log("message");
-      expect(fakeReporter.log).toHaveBeenCalledWith("message");
+      env.reporter.jasmineStarted();
+      expect(fakeReporter.jasmineStarted).toHaveBeenCalled();
     });
   });
 
@@ -276,6 +276,42 @@ describe("Env (integration)", function() {
     expect(delayedFunctionForMockClock).toHaveBeenCalled();
     expect(globalSetTimeout).toHaveBeenCalledWith(delayedFunctionForGlobalClock, 100);
   });
+
+  it("should report as expected", function() {
+    var env = new jasmine.Env(),
+      reporter = jasmine.createSpyObj('fakeReproter', [
+        "jasmineStarted",
+        "jasmineDone",
+        "suiteStarted",
+        "suiteDone",
+        "specStarted",
+        "specDone"
+      ]);
+
+    env.addReporter(reporter);
+
+    env.describe("A Suite", function() {
+      env.it("with a top level spec", function() {
+        env.expect(true).toBe(true);
+      });
+      env.describe("with a nested suite", function() {
+        env.xit("with a disabled spec", function() {
+          env.expect(true).toBe(true);
+        });
+        env.it("with a spec", function() {
+          env.expect(true).toBe(false);
+        });
+      });
+    });
+
+    env.execute();
+
+    expect(reporter.jasmineStarted).toHaveBeenCalled();
+    var suiteResult = reporter.suiteStarted.calls[0].args[0];
+    expect(suiteResult.description).toEqual("A Suite");
+    expect(reporter.jasmineDone).toHaveBeenCalled();
+  });
+
 
   it("should be possible to get full name from a spec", function() {
     var env = new jasmine.Env({global: { setTimeout: setTimeout }}),

@@ -14,6 +14,23 @@ describe("Spec", function() {
     expect(fakeQueueRunner).toHaveBeenCalled();
   });
 
+  it("should call the start callback on execution", function() {
+    var fakeQueueRunner = jasmine.createSpy('fakeQueueRunner'),
+      beforesWereCalled = false,
+      startCallback = originalJasmine.createSpy('startCallback'),
+      spec = new jasmine.Spec({
+        id: 123,
+        description: 'foo bar',
+        fn: function() {},
+        onStart: startCallback,
+        queueRunner: fakeQueueRunner
+      });
+
+    spec.execute();
+
+    expect(startCallback).toHaveBeenCalledWith(spec);
+  });
+
   it("should call the start callback on execution but before any befores are called", function() {
     var fakeQueueRunner = jasmine.createSpy('fakeQueueRunner'),
       beforesWereCalled = false,
@@ -27,9 +44,7 @@ describe("Spec", function() {
             beforesWereCalled = true
           }]
         },
-        startCallback: startCallback,
-        catchExceptions: function() { return false; },
-        resultCallback: function() {},
+        onStart: startCallback,
         queueRunner: fakeQueueRunner
       });
 
@@ -70,7 +85,7 @@ describe("Spec", function() {
       specBody = originalJasmine.createSpy('specBody'),
       resultCallback = originalJasmine.createSpy('resultCallback'),
       spec = new jasmine.Spec({
-        startCallback: startCallback,
+        onStart:startCallback,
         fn: specBody,
         resultCallback: resultCallback,
         queueRunner: fakeQueueRunner

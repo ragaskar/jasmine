@@ -11,7 +11,7 @@ jasmine.HtmlReporter = function(_doc, jasmine, env, options) {
 
   // Jasmine Reporter Public Interface
 
-  self.reportRunnerStarting = function(runner) {
+  self.jasmineStarted = function(runner) {
     var specs = runner.specs() || [];
 
     if (specs.length == 0) {
