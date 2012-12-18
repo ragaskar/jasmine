@@ -223,7 +223,8 @@ describe("Suite", function() {
     expect(suiteResultsCallback).toHaveBeenCalledWith({
       id: suite.id,
       status: '',
-      description: suite.getFullName()
+      description: "with a child suite",
+      fullName: "with a child suite"
     });
   });
 });

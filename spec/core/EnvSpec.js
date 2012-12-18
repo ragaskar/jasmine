@@ -250,7 +250,6 @@ describe("Env (integration)", function() {
     ]);
   });
 
-
   it("Mock clock can be installed and used in tests", function() {
     var globalSetTimeout = jasmine.createSpy('globalSetTimeout'),
       delayedFunctionForGlobalClock = jasmine.createSpy('delayedFunctionForGlobalClock'),
@@ -306,12 +305,13 @@ describe("Env (integration)", function() {
 
     env.execute();
 
-    expect(reporter.jasmineStarted).toHaveBeenCalled();
+    expect(reporter.jasmineStarted).toHaveBeenCalledWith({
+      totalSpecsDefined: 3
+    });
     var suiteResult = reporter.suiteStarted.calls[0].args[0];
     expect(suiteResult.description).toEqual("A Suite");
     expect(reporter.jasmineDone).toHaveBeenCalled();
   });
-
 
   it("should be possible to get full name from a spec", function() {
     var env = new jasmine.Env({global: { setTimeout: setTimeout }}),

@@ -84,6 +84,7 @@
       return buildExpectationResult(attrs);
     };
 
+    // TODO: fix this naming, and here's where the value comes in
     this.catchExceptions = function(value) {
       return catchExceptions = !!value;
     };
@@ -112,7 +113,11 @@
       new jasmine.QueueRunner(options).run(options.fns, 0);
     };
 
+
+    var totalSpecsDefined = 0;
     this.specFactory = function(description, fn, suite) {
+      totalSpecsDefined++;
+
       var spec = new specConstructor({
         id: self.nextSpecId(),
         beforeFns: beforeFns(suite),
@@ -140,6 +145,7 @@
         self.removeAllSpies();
         self.clock.uninstall();
         self.currentSpec = null;
+        self.reporter.specDone(result);
       }
     };
 
@@ -171,6 +177,13 @@
           self.reporter.suiteDone(attrs);
         }
       });
+    };
+
+    this.execute = function() {
+      this.reporter.jasmineStarted({
+        totalSpecsDefined: totalSpecsDefined
+      });
+      this.topSuite.execute(this.reporter.jasmineDone);
     };
   };
 
@@ -260,12 +273,6 @@
   // TODO: move this to closure
   jasmine.Env.prototype.addReporter = function(reporter) {
     this.reporter.addReporter(reporter);
-  };
-
-  // TODO: move this to closure
-  jasmine.Env.prototype.execute = function() {
-    this.reporter.jasmineStarted();
-    this.topSuite.execute(this.reporter.jasmineDone);
   };
 
   // TODO: move this to closure

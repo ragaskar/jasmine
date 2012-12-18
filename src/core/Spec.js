@@ -10,7 +10,7 @@ jasmine.Spec = function(attrs) {
   this.catchingExceptions = attrs.catchingExceptions;
   this.onStart = attrs.onStart || function() {};
   this.exceptionFormatter = attrs.exceptionFormatter || function() {};
-  this.getSpecName = attrs.getSpecName;
+  this.getSpecName = attrs.getSpecName || function() { return ''; };
   this.expectationResultFactory = attrs.expectationResultFactory || function() {};
   this.queueRunner = attrs.queueRunner || { execute: function() {}};
   this.catchingExceptions = attrs.catchingExceptions || function() { return true; };
@@ -18,6 +18,7 @@ jasmine.Spec = function(attrs) {
   this.result = {
     id: this.id,
     description: this.description,
+    fullName: this.getFullName(),
     status: this.status(),
     failedExpectations: []
   };

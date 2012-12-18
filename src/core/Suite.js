@@ -20,7 +20,8 @@ jasmine.Suite = function(attrs) {
   this.result = {
     id: this.id,
     status: this.disabled ? 'disabled' : '',
-    description: this.description
+    description: this.description,
+    fullName: this.getFullName()
   };
 };
 
