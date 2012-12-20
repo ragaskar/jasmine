@@ -29,11 +29,7 @@
     * argsToArray is used for Spies and matching
     * inherit is for how matchers are added/mixed in, reporters, and pretty printers
     * formatException is used only inside Env/spec
-    * htmlEscape is for messages in matchers - should this be HTML at all? Is that Reporter responsibility?
-* Rewrite/simplify Reporter interface
-  * get feature parity back on JsApiReporter
-  * get feature parity back on HTMLReporter
-* Matchers improvements
+    * htmlEscape is for messages in matchers - should this be HTML at all? Is that * Matchers improvements
   * move AddMatchers to Env & global (away from spec)
   * make matchers unit-testable
   * write doc on how to make a matcher

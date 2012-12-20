@@ -8,7 +8,9 @@ describe("New HtmlReporter", function() {
       },
       reporter = new jasmine.NewReporter({
         env: env,
-        document: fakeDocument
+        window: {
+          document: fakeDocument
+        }
       });
     reporter.initialize();
 
@@ -41,7 +43,9 @@ describe("New HtmlReporter", function() {
         },
         reporter = new jasmine.NewReporter({
           env: env,
-          document: fakeDocument
+          window: {
+            document: fakeDocument
+          }
         });
       reporter.initialize();
 
@@ -61,7 +65,9 @@ describe("New HtmlReporter", function() {
         },
         reporter = new jasmine.NewReporter({
           env: env,
-          document: fakeDocument
+          window: {
+            document: fakeDocument
+          }
         });
       reporter.initialize();
 
@@ -81,7 +87,9 @@ describe("New HtmlReporter", function() {
         },
         reporter = new jasmine.NewReporter({
           env: env,
-          document: fakeDocument
+          window: {
+            document: fakeDocument
+          }
         });
 
       reporter.initialize();
@@ -109,7 +117,9 @@ describe("New HtmlReporter", function() {
         },
         reporter = new jasmine.NewReporter({
           env: env,
-          document: fakeDocument,
+          window: {
+            document: fakeDocument
+          },
           now: fakeNow
         });
 
@@ -125,131 +135,6 @@ describe("New HtmlReporter", function() {
       expect(duration.innerHTML).toMatch(/finished in 0.1s/);
     });
 
-    describe("and all specs pass", function() {
-      var env, body, fakeDocument, reporter;
-      beforeEach(function() {
-        env = new jasmine.Env();
-        body = document.createElement("body");
-        fakeDocument = {
-          body: body
-        };
-        reporter = new jasmine.NewReporter({
-          env: env,
-          document: fakeDocument
-        });
-        reporter.initialize();
-
-        reporter.jasmineStarted({});
-        reporter.specDone({
-          id: 123,
-          description: "with a spec",
-          fullName: "A Suite with a spec",
-          status: "passed"
-        });
-        reporter.specDone({
-          id: 124,
-          description: "with another spec",
-          fullName: "A Suite inner suite with another spec",
-          status: "passed"
-        });
-        reporter.jasmineDone();
-      });
-
-      it("reports the specs counts", function() {
-        var alert = body.getElementsByClassName("alert")[0];
-        var alertBars = alert.getElementsByClassName("bar");
-
-        expect(alertBars.length).toEqual(1);
-        expect(alertBars[0].getAttribute('class')).toMatch(/passed/);
-        expect(alertBars[0].innerHTML).toMatch(/2 specs, 0 failures/);
-      });
-
-      it("reports no failure details", function() {
-        var specFailure = body.getElementsByClassName("failures")[0];
-
-        expect(specFailure.childNodes.length).toEqual(0);
-      });
-    });
-
-    describe("and some tests fail", function() {
-      var env, body, fakeDocument, reporter;
-
-      beforeEach(function() {
-        env = new jasmine.Env();
-        body = document.createElement("body");
-        fakeDocument = {
-          body: body
-        };
-        reporter = new jasmine.NewReporter({
-          env: env,
-          document: fakeDocument
-        });
-        reporter.initialize();
-
-        reporter.jasmineStarted({});
-        reporter.specDone({id: 123, status: "passed"});
-        reporter.specDone({
-          id: 124,
-          status: "failed",
-          description: "a failing spec",
-          fullName: "a suite with a failing spec",
-          failedExpectations: [
-            {
-              message: "a failure message",
-              trace: {
-                stack: "a stack trace"
-              }
-            }
-          ]
-        });
-        reporter.jasmineDone();
-      });
-
-      it("reports the specs counts", function() {
-        var alert = body.getElementsByClassName("alert")[0];
-        var alertBars = alert.getElementsByClassName("bar");
-
-        expect(alertBars[0].getAttribute('class')).toMatch(/failed/);
-        expect(alertBars[0].innerHTML).toMatch(/2 specs, 1 failure/);
-      });
-
-      it("reports failure messages and stack traces", function() {
-        var specFailures = body.getElementsByClassName("failures")[0];
-
-        var failure = specFailures.childNodes[0];
-        expect(failure.getAttribute("class")).toMatch(/failed/);
-        expect(failure.getAttribute("class")).toMatch(/spec-detail/);
-
-        var specLink = failure.childNodes[0];
-        expect(specLink.getAttribute("class")).toEqual("description");
-        expect(specLink.getAttribute("title")).toEqual("a suite with a failing spec");
-        expect(specLink.getAttribute("href")).toEqual("?spec=a%20suite%20with%20a%20failing%20spec");
-
-        var message = failure.childNodes[1].childNodes[0];
-        expect(message.getAttribute("class")).toEqual("result-message");
-        expect(message.innerHTML).toEqual("a failure message");
-
-        var stackTrace = failure.childNodes[1].childNodes[1];
-        expect(stackTrace.getAttribute("class")).toEqual("stack-trace");
-        expect(stackTrace.innerHTML).toEqual("a stack trace");
-      });
-
-      it("allows switching between failure details and the spec summary", function() {
-        var menuBar = body.getElementsByClassName("bar")[1];
-
-        expect(menuBar.getAttribute("class")).not.toMatch(/hidden/);
-
-        var link = menuBar.getElementsByTagName('a')[0];
-        expect(link.text).toEqual("Failures");
-        expect(link.getAttribute("href")).toEqual("#");
-      });
-
-      it("sets the reporter to 'Failures List' mode" , function() {
-        var reporterNode = body.getElementsByClassName("html-reporter")[0];
-        expect(reporterNode.getAttribute("class")).toMatch("failure-list");
-      });
-    });
-
     it("reports the suite and spec summaries", function() {
       var env = new jasmine.Env(),
         body = document.createElement("body"),
@@ -258,7 +143,9 @@ describe("New HtmlReporter", function() {
         },
         reporter = new jasmine.NewReporter({
           env: env,
-          document: fakeDocument
+          window: {
+            document: fakeDocument
+          }
         });
       reporter.initialize();
 
@@ -334,9 +221,211 @@ describe("New HtmlReporter", function() {
       expect(specLink.getAttribute("href")).toEqual("?spec=A%20Suite%20with%20a%20spec");
       expect(specLink.getAttribute("title")).toEqual("A Suite with a spec");
     });
-  });
 
-  // spec filtering
+    describe("UI for raising/catching exceptions", function() {
+      it("should be unchecked if the env is catching", function() {
+        var env = new jasmine.Env(),
+          body = document.createElement("body"),
+          fakeDocument = {
+            body: body
+          },
+          reporter = new jasmine.NewReporter({
+            env: env,
+            window: {
+              document: fakeDocument
+            }
+          });
+
+        reporter.initialize();
+        reporter.jasmineDone();
+
+        var raisingExceptionsUI = body.getElementsByClassName("raise")[0];
+        expect(raisingExceptionsUI.checked).toBe(false);
+      });
+
+      it("should be checked if the env is not catching", function() {
+        var env = new jasmine.Env(),
+          body = document.createElement("body"),
+          fakeDocument = {
+            body: body
+          },
+          reporter = new jasmine.NewReporter({
+            env: env,
+            window: {
+              document: fakeDocument,
+              location: {
+                search: "?catch=false"
+              }
+            }
+          });
+
+        reporter.initialize();
+        env.catchExceptions(false);
+        reporter.jasmineDone();
+
+        var raisingExceptionsUI = body.getElementsByClassName("raise")[0];
+        expect(raisingExceptionsUI.checked).toBe(true);
+      });
+
+      it("should affect the query param for catching exceptions", function() {
+        var env = new jasmine.Env(),
+          fakeQueryString = '',
+          body = document.createElement("body"),
+          fakeDocument = {
+            body: body
+          },
+          fakeWindow = {
+            document: fakeDocument,
+            location: {
+              search: '', hash: ''
+            }
+          },
+          reporter = new jasmine.NewReporter({
+            env: env,
+            window: fakeWindow
+          });
+
+        reporter.initialize();
+        reporter.jasmineDone();
+
+        var input = body.getElementsByClassName("raise")[0];
+        input.click();
+        expect(fakeWindow.location.search).toEqual("?catch=false");
+
+        input.click();
+        expect(fakeWindow.location.search).toEqual("?catch=true");
+      });
+    });
+
+    describe("and all specs pass", function() {
+      var env, body, fakeDocument, reporter;
+      beforeEach(function() {
+        env = new jasmine.Env();
+        body = document.createElement("body");
+        fakeDocument = {
+          body: body
+        };
+        reporter = new jasmine.NewReporter({
+          env: env,
+          window: {
+            document: fakeDocument
+          }
+        });
+        reporter.initialize();
+
+        reporter.jasmineStarted({});
+        reporter.specDone({
+          id: 123,
+          description: "with a spec",
+          fullName: "A Suite with a spec",
+          status: "passed"
+        });
+        reporter.specDone({
+          id: 124,
+          description: "with another spec",
+          fullName: "A Suite inner suite with another spec",
+          status: "passed"
+        });
+        reporter.jasmineDone();
+      });
+
+      it("reports the specs counts", function() {
+        var alert = body.getElementsByClassName("alert")[0];
+        var alertBars = alert.getElementsByClassName("bar");
+
+        expect(alertBars.length).toEqual(1);
+        expect(alertBars[0].getAttribute('class')).toMatch(/passed/);
+        expect(alertBars[0].innerHTML).toMatch(/2 specs, 0 failures/);
+      });
+
+      it("reports no failure details", function() {
+        var specFailure = body.getElementsByClassName("failures")[0];
+
+        expect(specFailure.childNodes.length).toEqual(0);
+      });
+    });
+
+    describe("and some tests fail", function() {
+      var env, body, fakeDocument, reporter;
+
+      beforeEach(function() {
+        env = new jasmine.Env();
+        body = document.createElement("body");
+        fakeDocument = {
+          body: body
+        };
+        reporter = new jasmine.NewReporter({
+          env: env,
+          window: {
+            document: fakeDocument
+          }
+        });
+        reporter.initialize();
+
+        reporter.jasmineStarted({});
+        reporter.specDone({id: 123, status: "passed"});
+        reporter.specDone({
+          id: 124,
+          status: "failed",
+          description: "a failing spec",
+          fullName: "a suite with a failing spec",
+          failedExpectations: [
+            {
+              message: "a failure message",
+              trace: {
+                stack: "a stack trace"
+              }
+            }
+          ]
+        });
+        reporter.jasmineDone();
+      });
+
+      it("reports the specs counts", function() {
+        var alert = body.getElementsByClassName("alert")[0];
+        var alertBars = alert.getElementsByClassName("bar");
+
+        expect(alertBars[0].getAttribute('class')).toMatch(/failed/);
+        expect(alertBars[0].innerHTML).toMatch(/2 specs, 1 failure/);
+      });
+
+      it("reports failure messages and stack traces", function() {
+        var specFailures = body.getElementsByClassName("failures")[0];
+
+        var failure = specFailures.childNodes[0];
+        expect(failure.getAttribute("class")).toMatch(/failed/);
+        expect(failure.getAttribute("class")).toMatch(/spec-detail/);
+
+        var specLink = failure.childNodes[0];
+        expect(specLink.getAttribute("class")).toEqual("description");
+        expect(specLink.getAttribute("title")).toEqual("a suite with a failing spec");
+        expect(specLink.getAttribute("href")).toEqual("?spec=a%20suite%20with%20a%20failing%20spec");
+
+        var message = failure.childNodes[1].childNodes[0];
+        expect(message.getAttribute("class")).toEqual("result-message");
+        expect(message.innerHTML).toEqual("a failure message");
+
+        var stackTrace = failure.childNodes[1].childNodes[1];
+        expect(stackTrace.getAttribute("class")).toEqual("stack-trace");
+        expect(stackTrace.innerHTML).toEqual("a stack trace");
+      });
+
+      it("allows switching between failure details and the spec summary", function() {
+        var menuBar = body.getElementsByClassName("bar")[1];
+
+        expect(menuBar.getAttribute("class")).not.toMatch(/hidden/);
+
+        var link = menuBar.getElementsByTagName('a')[0];
+        expect(link.text).toEqual("Failures");
+        expect(link.getAttribute("href")).toEqual("#");
+      });
+
+      it("sets the reporter to 'Failures List' mode", function() {
+        var reporterNode = body.getElementsByClassName("html-reporter")[0];
+        expect(reporterNode.getAttribute("class")).toMatch("failure-list");
+      });
+    });
+  });
 
   describe("specFilter", function() {
 
@@ -351,8 +440,12 @@ describe("New HtmlReporter", function() {
         },
         reporter = new jasmine.NewReporter({
           env: env,
-          document: fakeDocument,
-          queryString: queryString
+          window: {
+            document: fakeDocument,
+            location: {
+              search: ""
+            }
+          }
         }),
         fakeSpec = {
           getFullName: function() { return "A suite with a spec"}
@@ -367,13 +460,14 @@ describe("New HtmlReporter", function() {
         fakeDocument = {
           body: body
         },
-        queryString = function() {
-          return "spec=A%20suite%20with%20a%20spec"
-        },
         reporter = new jasmine.NewReporter({
           env: env,
-          document: fakeDocument,
-          queryString: queryString
+          window: {
+            document: fakeDocument,
+            location: {
+              search: "?spec=A%20suite%20with%20a%20spec"
+            }
+          }
         }),
         fakeMatchingSpec = {
           getFullName: function() { return "A suite with a spec"}
@@ -392,16 +486,17 @@ describe("New HtmlReporter", function() {
         fakeDocument = {
           body: body
         },
-        queryString = function() {
-          return "spec=with"
-        },
         reporter = new jasmine.NewReporter({
           env: env,
-          document: fakeDocument,
-          queryString: queryString
+          window: {
+            document: fakeDocument,
+            location: {
+              search: "?spec=with"
+            }
+          }
         }),
         fakeMatchingSpec = {
-          getFullName: function() { return "A suite with a spec"}
+          getFullName: function() { return "A suite with a spec" }
         },
         fakeNonMatchingSpec = {
           getFullName: function() { return "sasquatch"}
@@ -421,7 +516,9 @@ describe("New HtmlReporter", function() {
         },
         reporter = new jasmine.NewReporter({
           env: env,
-          document: fakeDocument
+          window: {
+            document: fakeDocument
+          }
         });
 
       reporter.initialize();
@@ -452,7 +549,7 @@ describe("New HtmlReporter", function() {
     });
   });
 
-  // passing in the try/catch
+  // try/catch
 
   // utility functions
   function findElements(divs, withClass) {
